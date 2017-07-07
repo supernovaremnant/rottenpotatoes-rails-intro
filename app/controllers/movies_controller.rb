@@ -16,10 +16,15 @@ class MoviesController < ApplicationController
     if session[:ratings].nil? 
       if !params[:ratings].nil?
         session[:ratings] = params[:ratings]
+        session[:url] = request.original_url
         @filter_base = params[:ratings]
       end
     else 
       if params[:ratings].nil?
+        # should redirect 
+        # p session[:url]
+        redirect_to session[:url]
+        # p session[:ratings]
         @filter_base = session[:ratings]
       else
         # update session and var given the parameters
@@ -57,7 +62,8 @@ class MoviesController < ApplicationController
       end
     else 
       if params[:sort_base].nil?
-        @sort_base = session[:sort_base]
+        # should redirect 
+        redirect_to movies_path+"/?sort_base="+session[:sort_base]
       else
         # update session and var given the parameters
         if session[:sort_base] != params[:sort_base] 
