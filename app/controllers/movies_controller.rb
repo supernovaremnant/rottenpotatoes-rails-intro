@@ -27,14 +27,18 @@ class MoviesController < ApplicationController
     
     @filter_base = params[:ratings]
 
+    @checked_list = Array.new(5, true)
+      
     if @filter_base.present?
       @query = Array.new 
-      @all_ratings.each do |r|
+      @all_ratings.each_with_index do |r, idx|
         if @filter_base["#{r}"].eql? "1"
           @query.push("#{r}")
+          @checked_list[idx] = true
+        else
+          @checked_list[idx] = false
         end
       end
-      
       @movies = Movie.where( :rating => @query )
     end 
     
