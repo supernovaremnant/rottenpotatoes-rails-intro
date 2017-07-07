@@ -14,6 +14,7 @@ class MoviesController < ApplicationController
     @sort_base = params[:sort_base]
     @title = ""
     @date = ""
+    @all_ratings = Movie::RATINGS 
     if @sort_base == "title" 
       @movies = Movie.order(:title)
       @title = "hilite"
@@ -23,6 +24,20 @@ class MoviesController < ApplicationController
     else 
       @movies = Movie.all
     end
+    
+    @filter_base = params[:ratings]
+
+    if @filter_base.present?
+      @query = Array.new 
+      @all_ratings.each do |r|
+        if @filter_base["#{r}"].eql? "1"
+          @query.push("#{r}")
+        end
+      end
+      
+      @movies = Movie.where( :rating => @query )
+    end 
+    
   end
 
   def new
