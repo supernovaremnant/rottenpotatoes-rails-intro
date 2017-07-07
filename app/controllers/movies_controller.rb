@@ -11,23 +11,26 @@ class MoviesController < ApplicationController
   end
 
   def index
-    @sort_base = params[:sort_base]
-    @title = ""
-    @date = ""
+    
     @all_ratings = Movie::RATINGS 
-    if @sort_base == "title" 
-      @movies = Movie.order(:title)
-      @title = "hilite"
-    elsif @sort_base == "date" 
-      @movies = Movie.order(:release_date)
-      @date = "hilite"
+    if session[:ratings].nil? 
+      if !params[:ratings].nil?
+        session[:ratings] = params[:ratings]
+        @filter_base = params[:ratings]
+      end
     else 
-      @movies = Movie.all
+      if params[:ratings].nil?
+        @filter_base = session[:ratings]
+      else
+        # update session and var given the parameters
+        if session[:ratings] != params[:ratings]
+          session[:ratings] = params[:ratings]
+        end
+        @filter_base = session[:ratings]
+      end
     end
     
-    @filter_base = params[:ratings]
-
-    @checked_list = Array.new(5, true)
+    @checked_list = Array.new( @all_ratings.size, true)
       
     if @filter_base.present?
       @query = Array.new 
@@ -40,8 +43,39 @@ class MoviesController < ApplicationController
         end
       end
       @movies = Movie.where( :rating => @query )
+    else 
+      @movies = Movie.all
     end 
     
+    @title = ""
+    @date = ""
+    
+    if session[:sort_base].nil? 
+      if !params[:sort_base].nil?
+        session[:sort_base] = params[:sort_base]
+        @sort_base = params[:sort_base]
+      end
+    else 
+      if params[:sort_base].nil?
+        @sort_base = session[:sort_base]
+      else
+        # update session and var given the parameters
+        if session[:sort_base] != params[:sort_base] 
+          session[:sort_base] = params[:sort_base]
+        end
+        @sort_base = session[:sort_base]
+      end
+    end
+    
+    if @sort_base == "title" 
+      @movies = @movies.order(:title)
+      @title = "hilite"
+    elsif @sort_base == "date" 
+      @movies = @movies.order(:release_date)
+      @date = "hilite"
+    else 
+      # no sorting 
+    end
   end
 
   def new
